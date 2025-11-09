@@ -1,0 +1,5 @@
+Storm events include severe thunderstorms, heavy rain, flash floods, and strong winds.
+Frequent or intense storms can lead to localized flooding, soil erosion, and infrastructure damage.
+NOAA recommends tracking storm frequency to assess long-term risk for communities and builders.
+Areas with more than five significant storm events per year are considered high exposure zones.
+Mitigation: Design drainage systems for heavy rainfall, use surge protectors, and reinforce roofs against high winds.
