@@ -2,7 +2,7 @@
 
 import requests
 import geopandas as gpd
-from shapely.geometry import box
+import json
 import sys
 sys.path.append('../..')
 from config.settings import *
@@ -11,83 +11,69 @@ class FloodDataAccessor:
     """Access FEMA National Flood Hazard Layer data"""
     
     def __init__(self):
-        self.rest_api_url = FEMA_NFHL_REST_API
+        # Use a simpler, more reliable endpoint
+        self.rest_api_url = "https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/28"
     
     def query_flood_zones(self, bbox, output_format='geojson'):
         """
         Query FEMA flood zones for a bounding box
-        bbox: dict with min_lat, max_lat, min_lon, max_lon
         """
-        # Construct query endpoint
         query_url = f"{self.rest_api_url}/query"
         
-        # Create bounding box geometry for spatial query
-        geometry_envelope = {
-            'xmin': bbox['min_lon'],
-            'ymin': bbox['min_lat'],
-            'xmax': bbox['max_lon'],
-            'ymax': bbox['max_lat'],
-            'spatialReference': {'wkid': 4326}
-        }
-        
+        # Simplified parameters
         params = {
-            'geometry': str(geometry_envelope),
+            'where': '1=1',  # Get all features
+            'geometry': f"{bbox['min_lon']},{bbox['min_lat']},{bbox['max_lon']},{bbox['max_lat']}",
             'geometryType': 'esriGeometryEnvelope',
-            'inSR': 4326,
             'spatialRel': 'esriSpatialRelIntersects',
             'outFields': '*',
             'returnGeometry': 'true',
-            'f': output_format
+            'outSR': '4326',
+            'f': 'geojson'
         }
         
         try:
+            print(f"  Querying FEMA flood zones...")
             response = requests.get(query_url, params=params, timeout=60)
             
             if response.status_code == 200:
-                if output_format == 'geojson':
-                    data = response.json()
-                    # Convert to GeoDataFrame
+                data = response.json()
+                
+                if 'features' in data and len(data['features']) > 0:
                     gdf = gpd.GeoDataFrame.from_features(data['features'])
+                    gdf.crs = 'EPSG:4326'
                     return gdf
                 else:
-                    return response.json()
+                    print("  No flood zone features returned")
+                    return gpd.GeoDataFrame()
             else:
-                print(f"Query failed: HTTP {response.status_code}")
-                return None
+                print(f"  Query failed: HTTP {response.status_code}")
+                print(f"  Response: {response.text[:200]}")
+                return gpd.GeoDataFrame()
                 
         except Exception as e:
-            print(f"Error querying flood zones: {str(e)}")
-            return None
+            print(f"  Error querying flood zones: {str(e)}")
+            return gpd.GeoDataFrame()
     
-    def save_flood_zones(self, gdf, filename, format='geojson'):
+    def save_flood_zones(self, gdf, filename):
         """Save flood zone data to file"""
-        if format == 'geojson':
+        if len(gdf) > 0:
             gdf.to_file(filename, driver='GeoJSON')
-        elif format == 'shapefile':
-            gdf.to_file(filename, driver='ESRI Shapefile')
+            return True
+        return False
 
-# Usage example
+# Test/Usage
 if __name__ == "__main__":
     accessor = FloodDataAccessor()
     
-    # Query Florida flood zones
     print("Querying Florida flood zones...")
     florida_floods = accessor.query_flood_zones(FLORIDA_BBOX)
     
-    if florida_floods is not None:
+    if len(florida_floods) > 0:
         accessor.save_flood_zones(
             florida_floods,
             '../../data/geojson/florida_flood_zones.geojson'
         )
-        print(f"Saved {len(florida_floods)} flood zone features")
-    
-    # Query Orlando flood zones
-    print("Querying Orlando flood zones...")
-    orlando_floods = accessor.query_flood_zones(ORLANDO_BBOX)
-    
-    if orlando_floods is not None:
-        accessor.save_flood_zones(
-            orlando_floods,
-            '../../data/geojson/orlando_flood_zones.geojson'
-        )
-        print(f"Saved {len(orlando_floods)} Orlando flood zone features")
+        print(f"✓ Saved {len(florida_floods)} flood zone features")
+    else:
+        print("✗ No flood data retrieved")
