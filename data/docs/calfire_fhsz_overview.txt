@@ -1,0 +1,5 @@
+The California Fire Hazard Severity Zone (FHSZ) maps identify areas where wildfires are most likely to occur and where fire behavior can be most extreme.
+Zones are categorized as Moderate, High, or Very High based on vegetation, slope, weather patterns, and fire history.
+Very High zones have the greatest risk of fast-moving, intense fires that can ignite structures directly or via embers.
+Construction in these zones should use non-combustible roofs, ember-resistant vents, and maintain defensible space of at least 100 feet.
+Mitigation: Clear vegetation near homes, use fire-resistant materials, and establish emergency access routes.

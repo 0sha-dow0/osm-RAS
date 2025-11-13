@@ -1,0 +1,5 @@
+Peak Ground Acceleration (PGA) represents the maximum shaking intensity expected during an earthquake.
+It is expressed as a fraction of gravity (g). Values above 0.3g are considered strong and can cause serious structural damage if buildings are not designed for seismic loads.
+USGS seismic hazard maps estimate PGA with a 2% probability of exceedance in 50 years, roughly corresponding to major earthquakes.
+High PGA areas in California coincide with active fault zones such as the San Andreas and Hayward Faults.
+Mitigation: Use reinforced concrete or steel frames, secure heavy furniture, and include seismic anchoring for foundations.
