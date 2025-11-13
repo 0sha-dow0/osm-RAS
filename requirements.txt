@@ -22,3 +22,5 @@ sentence-transformers==3.0.1
 
 # App
 streamlit==1.36.0
+contextily==1.6.0
+
