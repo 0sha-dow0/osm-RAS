@@ -6,6 +6,7 @@ import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 from src.config import RAG_INDEX_DIR  # ABSOLUTE import, not relative
+from typing import Optional
 
 # Embedder (small model; loaded once)
 EMB = SentenceTransformer("all-MiniLM-L6-v2")
@@ -21,7 +22,7 @@ def _retrieve(query: str, k: int = 4) -> str:
     docs = res.get("documents", [[]])[0]
     return "\n\n".join(docs) if docs else ""
 
-def _ollama_generate_http(prompt: str, model: str | None = None, timeout: int = 60) -> str:
+def _ollama_generate_http(prompt: str, model: Optional[str] = None, timeout: int = 60) -> str:
     model = model or os.environ.get("HAZARD_LLM_MODEL", "phi3:mini")
     try:
         r = requests.post(
