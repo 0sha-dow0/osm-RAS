@@ -37,12 +37,22 @@ def render_map(lon, lat, outfile):
     # storms are points; buffer a little in meters to include them in extent if present
     storms_u = None
     if not storms.empty:
-        storms_u = unary_union(storms.to_crs(3857).buffer(300)).to_crs(4326)
+        storms_m = storms.to_crs(3857)              # project to meters
+        storms_buf = storms_m.buffer(300)           # 300 m buffer
+        storms_u_m = unary_union(storms_buf)        # shapely geometry in 3857
+        if storms_u_m is not None and not storms_u_m.is_empty:
+            storms_u = (
+                gpd.GeoSeries([storms_u_m], crs=3857)
+                .to_crs(4326)
+                .geometry.iloc[0]
+            )
 
-    # choose a tight extent that includes site + any hazards
-    extent = _tight_bounds_with_padding(
-        [site.geometry.iloc[0], fema_u, cal_u, usgs_u, storms_u], pad_m=1200
-    )
+    extent_geoms = [
+        geom
+        for geom in (fema_u, cal_u, usgs_u, storms_u, site.geometry.iloc[0])
+        if geom is not None and not geom.is_empty
+    ]
+    extent = _tight_bounds_with_padding(extent_geoms)
     if extent is None:
         # fall back to +/- 0.1 deg around site
         extent = (lon-0.1, lat-0.1, lon+0.1, lat+0.1)
