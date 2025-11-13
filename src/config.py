@@ -19,6 +19,6 @@ NOAA_STORMS_GP = DATA_PROCESSED / "noaa_storms.gpkg"   # storm points
 MODEL_PKL = MODELS_DIR / "model.pkl"
 
 # Davis bbox: (minx, miny, maxx, maxy)
-DAVIS_BBOX = (-122.0, 38.35, -121.50, 38.70)
+DAVIS_BBOX = (-118.9, 33.6, -117.7, 34.5)
 
 TARGET_CRS = "EPSG:4326"
